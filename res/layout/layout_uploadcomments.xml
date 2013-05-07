@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:gravity="top"
+        android:text="@string/photoTitle" />
+
+    <EditText
+        android:id="@+id/etPhotoTitle"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="top|left"
+        android:scrollbars="vertical" />
+	
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:gravity="top"
+        android:text="@string/photoComments" />
+    	
+    <EditText
+        android:id="@+id/etPhotoComments"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="top|left"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical" />
+    
+    
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/btn_UploadOK"
+            android:layout_width="140dip"
+            android:layout_height="wrap_content"
+            android:text="@string/OK" />
+        
+        <Button
+            android:id="@+id/btn_UploadCancel"
+            android:layout_width="140dip"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel" />
+        
+    </LinearLayout>
+
+</LinearLayout>

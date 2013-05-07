@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView 
+        android:id="@+id/curPath"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:gravity="left|center_vertical"
+        android:background="#D7D7D7"
+        />
+    
+    <ListView android:id="@+id/myListView"
+        		android:layout_width="match_parent"
+        		android:layout_height="match_parent"
+        		/>
+
+</LinearLayout>
