@@ -41,7 +41,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity{
 
 	private MyApp myApp; 
 	private List<Map<String, Object>> fileNameList;
@@ -57,7 +57,9 @@ public class MainActivity extends Activity {
 	private EditText et_PhotoComments;
 	private LocationUtil locationUtil;
 	private Dialog commentsDialog;
+	private MenuItem searchItem;
 
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		locationUtil = new LocationUtil(MainActivity.this);
@@ -76,8 +78,11 @@ public class MainActivity extends Activity {
 		pathList = new Stack<String>();
 		getFileName(files);
         String[] fromColumns = {"Icon", "Name"};
-        int[] toViews = {R.id.itemImage, R.id.itemName}; 
-		mAdapter = new SimpleAdapter(this, fileNameList,R.layout.simple_list_item,fromColumns,toViews);
+        int[] toViews = {	R.id.itemImage, R.id.itemName}; // The TextView in simple_list_item_1
+
+        //MyAdapter mAdapter = new MyAdapter(this);
+		mAdapter = new SimpleAdapter(this,
+				fileNameList,R.layout.simple_list_item,fromColumns,toViews);
         mylv.setOnItemClickListener(new myOnLVItemClickListener());
         mylv.setOnItemLongClickListener(new myOnItemLongClickListener());
         mylv.setAdapter(mAdapter);
@@ -103,18 +108,21 @@ public class MainActivity extends Activity {
 			getFileName(files);
 			mAdapter.notifyDataSetChanged();
 		}
-		
+
 		public void DisplayImage(File image){
 			Intent toImageIntent = new Intent(Intent.ACTION_VIEW);
 			toImageIntent.setDataAndType(Uri.fromFile(image), "image/*");
 			startActivity(toImageIntent);
 		}
-		
+
 	}
-	
+
 	class myOnItemLongClickListener implements OnItemLongClickListener{
 
-		public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+		@Override
+		public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+				int position, long arg3) {
+			// TODO Auto-generated method stub
 			Log.i("LongClickEvent", "called successfully!!!");
 			AlertDialog.Builder fileOptDialogBuilder = new AlertDialog.Builder(MainActivity.this);
 			fileOptDialogBuilder.setTitle(R.string.fileopt);
@@ -130,18 +138,19 @@ public class MainActivity extends Activity {
 
 	class MyDialogItemOnClickListener implements android.content.DialogInterface.OnClickListener{
 
+		@Override
 		public void onClick(DialogInterface dialog, int which) {
 			Log.i("DialogClickEvent", Integer.toString(which));
 			File tmpFile = new File(optAbsPath);
 			switch(which){
-				case 0: DeleteOptFile(tmpFile);break;
-				case 1: RenameOptFile(tmpFile);break;
-				case 2: UploadOptFile(tmpFile);break;
-				case 3: ShareOptFile(tmpFile);break;
+			case 0: DeleteOptFile(tmpFile);break;
+			case 1: RenameOptFile(tmpFile);break;
+			case 2: UploadOptFile(tmpFile);break;
+			case 3: ShareOptFile(tmpFile);break;
 			}
 		}
 	}
-	
+
 	public void DeleteOptFile(File optFile){
 		if(optFile.isDirectory()){
 			File[] tmpfs = optFile.listFiles();
@@ -165,11 +174,11 @@ public class MainActivity extends Activity {
 			mAdapter.notifyDataSetChanged();
 		}
 	}
-	
+
 	public void RenameOptFile(File optFile){
-		
+
 	}
-	
+
 	public void UploadOptFile(final File optFile){
 		fileOptDialog.dismiss();
 		AlertDialog.Builder commentsDialogBuilder = new AlertDialog.Builder(MainActivity.this);
@@ -235,7 +244,7 @@ public class MainActivity extends Activity {
 			mAdapter.notifyDataSetChanged();
 		}
 	}
-	
+
 	private void getFileName(File[] files) {
 		Log.i("getFileName", "Accessed!!!");
 		fileNameList.clear();
@@ -262,26 +271,47 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);		
-	    SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-	    SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-	    searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-	    searchView.setIconifiedByDefault(false); 
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+
+		searchItem = (MenuItem)menu.findItem(R.id.menu_search);
+
+		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false);
 		return true;
 	}
 
-	public boolean onOptionsItemSelected(MenuItem item) {		
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 			case R.id.menu_update: 
 				Log.i("MenuItem", "Update Clicked");
 				doUpdate();
 				return true;
+			case R.id.menu_search:
+				Log.i("MenuItem", "Search Clicked");
+				onSearchRequested();
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
 	}	
-	
+
+	@Override
+	public boolean onSearchRequested() {
+		// TODO Auto-generated method stub
+		Bundle mBundle = new Bundle();
+
+		mBundle.putString("path", path.getAbsolutePath());
+		startSearch("test", false, mBundle, false);
+		return true;
+		//return super.onSearchRequested();
+	}
+
 	public void doUpdate(){
 		Thread SyncThread = new Thread(new SyncTask());
 		SyncThread.start();
@@ -292,4 +322,6 @@ public class MainActivity extends Activity {
 			
 		}
 	}
+
 }
+
