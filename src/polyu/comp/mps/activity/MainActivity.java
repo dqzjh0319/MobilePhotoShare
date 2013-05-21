@@ -2,26 +2,35 @@ package polyu.comp.mps.activity;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+
+import polyu.comp.mps.MyApplication;
 import polyu.comp.mps.R;
-import polyu.comp.mps.MyApp;
 import polyu.comp.mps.util.JsonUtil;
 import polyu.comp.mps.util.LocationUtil;
 import polyu.comp.mps.util.SyncTask;
-import polyu.comp.mps.util.UploadFileTask;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.location.LocationManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,20 +39,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends Activity{
 
-	private MyApp myApp; 
+	private MyApplication myApp; 
 	private List<Map<String, Object>> fileNameList;
 	private File path;
 	private ListView mylv;
@@ -58,16 +69,29 @@ public class MainActivity extends Activity{
 	private LocationUtil locationUtil;
 	private Dialog commentsDialog;
 	private MenuItem searchItem;
+	public ImageLoader imageLoader;
+	DisplayImageOptions options;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		locationUtil = new LocationUtil(MainActivity.this);
-		myApp = (MyApp) getApplication();
+		myApp = (MyApplication) getApplication();
 		
 		Intent intent = getIntent();
 		myDir = intent.getStringExtra("curPath");
 		setContentView(R.layout.activity_main);
+		imageLoader = ImageLoader.getInstance();
+		options = new DisplayImageOptions.Builder()
+										.showStubImage(R.drawable.unloaded_icon)
+										.showImageForEmptyUri(R.drawable.image_icon)
+										.showImageOnFail(R.drawable.image_icon)
+										.resetViewBeforeLoading()
+										.cacheInMemory()
+										.cacheOnDisc()
+										.displayer(new RoundedBitmapDisplayer(20))
+										.build();
+		
         mylv = (ListView)findViewById(R.id.myListView);
               
 		fileNameList = new ArrayList<Map<String, Object>>();
@@ -80,17 +104,17 @@ public class MainActivity extends Activity{
         String[] fromColumns = {"Icon", "Name"};
         int[] toViews = {	R.id.itemImage, R.id.itemName}; // The TextView in simple_list_item_1
 
-        //MyAdapter mAdapter = new MyAdapter(this);
 		mAdapter = new SimpleAdapter(this,
 				fileNameList,R.layout.simple_list_item,fromColumns,toViews);
         mylv.setOnItemClickListener(new myOnLVItemClickListener());
         mylv.setOnItemLongClickListener(new myOnItemLongClickListener());
-        mylv.setAdapter(mAdapter);
+        mylv.setAdapter(new ItemAdapter());
 	}
 
 
 	class myOnLVItemClickListener implements OnItemClickListener{
 
+		@Override
 		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 			Log.i("ItemClicked", "ItemClicked");
 			String p = (String) fileNameList.get(arg2).get("AbsPath");
@@ -193,6 +217,7 @@ public class MainActivity extends Activity{
 		
 		btn_UploadOK.setOnClickListener(new OnClickListener() {
 			
+			@Override
 			public void onClick(View v) {
 				String photoTitle = et_PhotoTitle.getText().toString();
 				String photoComments = et_PhotoComments.getText().toString();
@@ -208,6 +233,7 @@ public class MainActivity extends Activity{
 		});
 		
 		btn_UploadCancel.setOnClickListener(new OnClickListener() {
+			@Override
 			public void onClick(View v) {
 				commentsDialog.dismiss();
 			}
@@ -229,6 +255,7 @@ public class MainActivity extends Activity{
 		}
 	}
 	
+	@Override
 	public void onBackPressed() {
 		if(pathList.empty()){
 			super.onBackPressed();
@@ -276,7 +303,7 @@ public class MainActivity extends Activity{
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 
-		searchItem = (MenuItem)menu.findItem(R.id.menu_search);
+		searchItem = menu.findItem(R.id.menu_search);
 
 		SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
@@ -322,6 +349,97 @@ public class MainActivity extends Activity{
 			
 		}
 	}
+	
+	private Bitmap getImageThumbnail(String imagePath, int width, int height) {
+		Bitmap bitmap = null;
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		bitmap = BitmapFactory.decodeFile(imagePath, options);
+		options.inJustDecodeBounds = false;
+		int h = options.outHeight;
+		int w = options.outWidth;
+		int beWidth = w / width;
+		int beHeight = h / height;
+		int be = 1;
+		if (beWidth < beHeight) {
+			be = beWidth;
+		} else {
+			be = beHeight;
+		}
+		if (be <= 0) {
+			be = 1;
+		}
+		options.inSampleSize = be;
+		bitmap = BitmapFactory.decodeFile(imagePath, options);
+		bitmap = ThumbnailUtils.extractThumbnail(bitmap, width, height,
+				ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
+		return bitmap;
+	}
+	
+	class ItemAdapter extends BaseAdapter {
 
+		private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+
+		private class ViewHolder {
+			public TextView text;
+			public ImageView image;
+		}
+
+		@Override
+		public int getCount() {
+			return fileNameList.size();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return fileNameList.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(final int position, View convertView, ViewGroup parent) {
+			View view = convertView;
+			final ViewHolder holder;
+			if (convertView == null) {
+				view = getLayoutInflater().inflate(R.layout.simple_list_item, parent, false);
+				holder = new ViewHolder();
+				holder.text = (TextView) view.findViewById(R.id.itemName);
+				holder.image = (ImageView) view.findViewById(R.id.itemImage);
+				view.setTag(holder);
+			} else {
+				holder = (ViewHolder) view.getTag();
+			}
+
+			holder.text.setText((String)fileNameList.get(position).get("Name"));
+
+			imageLoader.displayImage("file://" + fileNameList.get(position).get("AbsPath").toString(), 
+							holder.image, 
+							options, 
+							animateFirstListener);
+
+			return view;
+		}
+	}
+	
+	private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
+
+		static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
+
+		@Override
+		public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+			if (loadedImage != null) {
+				ImageView imageView = (ImageView) view;
+				boolean firstDisplay = !displayedImages.contains(imageUri);
+				if (firstDisplay) {
+					FadeInBitmapDisplayer.animate(imageView, 500);
+					displayedImages.add(imageUri);
+				}
+			}
+		}
+	}
 }
 

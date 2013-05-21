@@ -1,9 +1,6 @@
 package polyu.comp.mps.activity;
 
-
 import polyu.comp.mps.R;
-import polyu.comp.mps.R.id;
-import polyu.comp.mps.R.layout;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +11,7 @@ import android.widget.ImageButton;
 
 public class PanelActivity extends Activity {
 
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_panel_layout);
@@ -21,10 +19,12 @@ public class PanelActivity extends Activity {
 		myImages.setOnClickListener(new MyImageOnClickListener());
 		ImageButton sharedImages = (ImageButton)findViewById(R.id.btn_SharedImages);
 		sharedImages.setOnClickListener(new SharedImageOnClickListener());
-		
+		ImageButton picAroundme = (ImageButton)findViewById(R.id.btn_picAroundMe);
+		picAroundme.setOnClickListener(new PicAroundMeOnClickListener());
 	}
 	
 	class MyImageOnClickListener implements OnClickListener{
+		@Override
 		public void onClick(View v) {
 			Intent pnltoVLIntent = new Intent(PanelActivity.this, MainActivity.class);
 			pnltoVLIntent.putExtra("curPath", "/mnt/sdcard/PhotoShare/MyImages");
@@ -33,6 +33,7 @@ public class PanelActivity extends Activity {
 	}
 	
 	class SharedImageOnClickListener implements OnClickListener{
+		@Override
 		public void onClick(View v) {
 			Intent phltoVLIntent = new Intent(PanelActivity.this, MainActivity.class);
 			phltoVLIntent.putExtra("curPath", "/mnt/sdcard/PhotoShare/SharedImages");
@@ -40,4 +41,15 @@ public class PanelActivity extends Activity {
 		}
 	}
 	
+	class PicAroundMeOnClickListener implements OnClickListener{
+
+		@Override
+		public void onClick(View v) {
+			Intent phltoVLIntent = new Intent(PanelActivity.this, LocationActivity.class);
+			phltoVLIntent.putExtra("curPath", "/mnt/sdcard/PhotoShare/LocationImages");
+			startActivity(phltoVLIntent);
+		}
+		
+		
+	}
 }

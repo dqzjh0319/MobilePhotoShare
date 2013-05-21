@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	
     <application
-        android:name=".MyApp" 
+        android:name=".MyApplication" 
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -43,12 +43,19 @@
  		</activity>
  		
  		<activity
+        	android:name="polyu.comp.mps.activity.LocationActivity"
+        	android:label="@string/app_name"
+        	android:parentActivityName="polyu.comp.mps.activity.PanelActivity" >
+ 		</activity>
+ 		
+ 		<activity
         	android:name="polyu.comp.mps.activity.MainActivity"
         	android:label="@string/app_name"
         	android:parentActivityName="polyu.comp.mps.activity.PanelActivity" >
             <meta-data android:name="android.app.default_searchable"
                    android:value="polyu.comp.mps.activity.ImageSearchableActivity" />
  		</activity>
+ 		
         <activity android:name="polyu.comp.mps.activity.ImageSearchableActivity" >
         	<intent-filter>
             	<action android:name="android.intent.action.SEARCH" />
