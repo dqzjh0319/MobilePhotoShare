@@ -4,8 +4,6 @@ import polyu.comp.mps.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
@@ -13,6 +11,7 @@ import android.widget.ImageButton;
 
 public class PanelActivity extends Activity {
 
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_panel_layout);
@@ -25,6 +24,7 @@ public class PanelActivity extends Activity {
 	}
 	
 	class MyImageOnClickListener implements OnClickListener{
+		@Override
 		public void onClick(View v) {
 			Intent pnltoVLIntent = new Intent(PanelActivity.this, MainActivity.class);
 			pnltoVLIntent.putExtra("curPath", "/mnt/sdcard/PhotoShare/MyImages");
@@ -33,6 +33,7 @@ public class PanelActivity extends Activity {
 	}
 	
 	class SharedImageOnClickListener implements OnClickListener{
+		@Override
 		public void onClick(View v) {
 			Intent phltoVLIntent = new Intent(PanelActivity.this, MainActivity.class);
 			phltoVLIntent.putExtra("curPath", "/mnt/sdcard/PhotoShare/SharedImages");

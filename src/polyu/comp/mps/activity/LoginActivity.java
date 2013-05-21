@@ -1,12 +1,14 @@
 package polyu.comp.mps.activity;
 
+
+import polyu.comp.mps.MyApplication;
 import polyu.comp.mps.R;
-import polyu.comp.mps.MyApp;
 import polyu.comp.mps.util.JsonUtil;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -17,7 +19,7 @@ import android.widget.Toast;
 public class LoginActivity extends Activity {
 
 	
-	private MyApp myApp;
+	private MyApplication myApp;
 	private String url;
 	private EditText txtUserName;
 	private EditText txtPassword;
@@ -28,7 +30,10 @@ public class LoginActivity extends Activity {
 	private String userName;
 	private String userPsw;
 	
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		
+		Log.i("Log in Activity", "onCreate called...");
 		
 		userName = "";
 		userPsw = "";
@@ -46,7 +51,7 @@ public class LoginActivity extends Activity {
             .penaltyLog()     
             .penaltyDeath()     
             .build());  
-		myApp = (MyApp) getApplication();
+		myApp = (MyApplication) getApplication();
         super.onCreate(savedInstanceState);
 		setContentView(R.layout.login_layout);
 		initView();
@@ -66,6 +71,7 @@ public class LoginActivity extends Activity {
 		
 		regBtn.setOnClickListener(new OnClickListener() {
 
+			@Override
 			public void onClick(View v) {
 				Intent regIntent = new Intent(LoginActivity.this, RegisterActivity.class);
 				startActivity(regIntent);
@@ -75,6 +81,7 @@ public class LoginActivity extends Activity {
 
 		signBtn.setOnClickListener(new OnClickListener() {
 
+			@Override
 			public void onClick(View v) {
 				Intent signToPanelIntent = new Intent(LoginActivity.this, PanelActivity.class);
 				startActivity(signToPanelIntent);
@@ -86,6 +93,7 @@ public class LoginActivity extends Activity {
 					Intent signToPanelIntent = new Intent(LoginActivity.this, PanelActivity.class);
 					startActivity(signToPanelIntent);
 				}*/
+				
 			}
 
 		});

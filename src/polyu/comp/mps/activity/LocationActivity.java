@@ -5,12 +5,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import polyu.comp.mps.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationManager;
 import android.media.ExifInterface;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,33 +21,39 @@ public class LocationActivity extends Activity {
 
 	private ListView locationListView;
 	private String path;
-	private List<Map<String, Object>> fileNameList;
+	private List<HashMap<String, Object>> fileNameList;
 	public SimpleAdapter mAdapter;
 	private int distanceThreshold = 1000;
+	private LocationManager mLocationManager;
+	public Location curLocation;
+	private static final String TAG = "Location Activity";  
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		Log.i("LocationActivity", "onCreate called!!");
 		Intent intent = getIntent();
 		path = intent.getStringExtra("curPath");
-		Log.i("LocationActivity", "intent gain!!");		
+		Log.i("LocationActivity", "intent gain!!");	
 		TextView curPath = (TextView)findViewById(R.id.curPath);
 		curPath.setText(path);
 		locationListView = (ListView)findViewById(R.id.myListView);
-		double dist = calDistaceBetweenImages(
-				"/mnt/sdcard/DCIM/test/28.jpg",
-				"/mnt/sdcard/DCIM/test/29.jpg");
-		Log.i("Location", ""+ dist);
-		fileNameList = new ArrayList<Map<String, Object>>();		
+		fileNameList = new ArrayList<HashMap<String, Object>>();		
 		ProduceFileNameList(path);
-		String[] fromColumns = {"imageIcon", "imageName","distance"};
-        int[] toViews = {	R.id.imageIcon, R.id.imageName, R.id.distance}; // The TextView in simple_list_item_1
 
+		String[] fromColumns = {"imageIcon", "imageName","distance"};
+        int[] toViews = {	R.id.imageIcon, R.id.imageName, R.id.distance}; 
+        
 		mAdapter = new SimpleAdapter(this,
 				fileNameList,R.layout.location_list_item,fromColumns,toViews);
 		locationListView.setAdapter(mAdapter);
+		
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		
 	}
 	
 	private void ProduceFileNameList(String dir) {
@@ -69,7 +74,9 @@ public class LocationActivity extends Activity {
 	}
 	
 	private HashMap<String, Object> ConstructSingleItem(File curFile) {
-		double distance = calDistaceBetweenImages("/mnt/sdcard/DCIM/test/28.jpg", curFile.getAbsolutePath());
+		//double distance = calDistaceToImage(curFile.getAbsolutePath());
+		double distance = calDistaceBetweenImages("/mnt/sdcard/PhotoShare/LocationImages/28.jpg",
+													curFile.getAbsolutePath());
 		int intDist = (int)(distance/100.) + 1;
 		if (intDist > distanceThreshold) {
 			return null;
@@ -91,39 +98,69 @@ public class LocationActivity extends Activity {
 		return singleItem;
 	}
 	
+	private double calDistaceToImage(String image1){
+		double distance = -1.0;
+		try {
+			ExifInterface eia = new ExifInterface(image1);
+			String strImageLatitude = eia.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+			String strImageLongitude = eia.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+			
+			Location imageLocation = new Location("base");
+			if(strImageLatitude != null){
+				Log.i("Location", strImageLatitude);
+				double dLatitudeBase = LocStrToDouble(strImageLatitude);
+				imageLocation.setLatitude(dLatitudeBase);
+			}
+			if(strImageLongitude != null){
+				Log.i("Location", ""+ strImageLongitude);
+				double dLongitudeBase = LocStrToDouble(strImageLongitude);
+				imageLocation.setLongitude(dLongitudeBase);
+			}
+			if(strImageLatitude != null && strImageLongitude != null) {
+				distance  = curLocation.distanceTo(imageLocation);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return distance;
+	}
+	
 	private double calDistaceBetweenImages(String image1, String image2){
 		double distance = -1.0;
 		try {
 			ExifInterface eia = new ExifInterface(image1);
-			ExifInterface eib = new ExifInterface(image2);
-			String strLatitudeBase = eia.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-			String strLongitudeBase = eia.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-			String strLatitudeCmp = eib.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-			String strLongitudeCmp = eib.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+			String strImageLatitudeBase = eia.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+			String strImageLongitudeBase = eia.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
 			
-			Location imageBase = new Location("base");
-			if(strLatitudeBase != null){
-				Log.i("Location", strLatitudeBase);
-				double dLatitudeBase = LocStrToDouble(strLatitudeBase);
-				imageBase.setLatitude(dLatitudeBase);
+			ExifInterface eib = new ExifInterface(image2);
+			String strImageLatitudeCmp = eib.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+			String strImageLongitudeCmp = eib.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+			
+			Location imageLocationBase = new Location("base");
+			if(strImageLatitudeBase != null){
+				Log.i("Location", strImageLatitudeBase);
+				double dLatitudeBase = LocStrToDouble(strImageLatitudeBase);
+				imageLocationBase.setLatitude(dLatitudeBase);
 			}
-			if(strLongitudeBase != null){
-				Log.i("Location", ""+ strLongitudeBase);
-				double dLongitudeBase = LocStrToDouble(strLongitudeBase);
-				imageBase.setLongitude(dLongitudeBase);
+			if(strImageLongitudeBase != null){
+				Log.i("Location", ""+ strImageLongitudeBase);
+				double dLongitudeBase = LocStrToDouble(strImageLongitudeBase);
+				imageLocationBase.setLongitude(dLongitudeBase);
 			}
-			Location imageCmp = new Location("cmp");
-			if(strLatitudeCmp != null){
-				Log.i("Location", ""+ strLatitudeCmp);
-				double dLatitudeCmp = LocStrToDouble(strLatitudeCmp);
-				imageCmp.setLatitude(dLatitudeCmp);
+			
+			Location imageLocationCmp = new Location("Cmp");
+			if(strImageLatitudeCmp != null){
+				Log.i("Location", strImageLatitudeCmp);
+				double dLatitudeCmp = LocStrToDouble(strImageLatitudeCmp);
+				imageLocationCmp.setLatitude(dLatitudeCmp);
 			}
-			if(strLongitudeCmp != null){
-				Log.i("Location", ""+ strLongitudeCmp);
-				double dLongitudeCmp = LocStrToDouble(strLongitudeCmp);
-				imageCmp.setLongitude(dLongitudeCmp);
+			if(strImageLongitudeCmp != null){
+				Log.i("Location", ""+ strImageLongitudeCmp);
+				double dLongitudeCmp = LocStrToDouble(strImageLongitudeCmp);
+				imageLocationCmp.setLongitude(dLongitudeCmp);
 			}
-			distance  = imageBase.distanceTo(imageCmp);
+			distance  = imageLocationBase.distanceTo(imageLocationCmp);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -153,4 +190,5 @@ public class LocationActivity extends Activity {
 
 		return result;
 	}
+	
 }

@@ -33,15 +33,18 @@ public class LocationUtil {
 	private boolean startLocation(String provider,final Context context){  
 		Location location = lm.getLastKnownLocation(provider);   
         locationListener = new LocationListener() {   
-        	public void onProviderEnabled(String provider) {  
+        	@Override
+			public void onProviderEnabled(String provider) {  
                 
             }  
               
-            public void onProviderDisabled(String provider) {  
+            @Override
+			public void onProviderDisabled(String provider) {  
                   
             }  
                
-            public void onLocationChanged(Location location) {  
+            @Override
+			public void onLocationChanged(Location location) {  
                 if (location != null) {     
                 	Log.e("Map", "Location changed : Lat: "    
                           + location.getLatitude() + " Lng: "    
@@ -49,6 +52,7 @@ public class LocationUtil {
                 }  
             }
 
+			@Override
 			public void onStatusChanged(String provider, int status, Bundle extras) {
 				
 			}  

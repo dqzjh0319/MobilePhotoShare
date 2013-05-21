@@ -1,14 +1,11 @@
 package polyu.comp.mps.activity;
 
 import polyu.comp.mps.R;
-import polyu.comp.mps.R.layout;
 import polyu.comp.mps.util.JsonUtil;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -32,6 +29,7 @@ public class RegisterActivity extends Activity {
 	private TextView tvRegNickName;
 	private Button btn_register;
 
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		
 		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()     
@@ -72,6 +70,7 @@ public class RegisterActivity extends Activity {
 		
 		btn_register.setOnClickListener(new OnClickListener() {
 
+			@Override
 			public void onClick(View v) {
 				userName = txtRegUserName.getText().toString();
 				userPsw = txtRegPassword.getText().toString();
