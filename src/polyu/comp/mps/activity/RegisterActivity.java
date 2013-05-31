@@ -1,5 +1,6 @@
 package polyu.comp.mps.activity;
 
+import polyu.comp.mps.MyApplication;
 import polyu.comp.mps.R;
 import polyu.comp.mps.util.JsonUtil;
 import android.app.Activity;
@@ -28,6 +29,7 @@ public class RegisterActivity extends Activity {
 	private TextView tvRegConfirmPsw;
 	private TextView tvRegNickName;
 	private Button btn_register;
+	private MyApplication myApp;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,7 @@ public class RegisterActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		Intent intent = getIntent();
 		setContentView(R.layout.register_activity_layerout);
+		myApp = (MyApplication) getApplication();
 		initView();
 		setListener();
 	}
@@ -90,7 +93,7 @@ public class RegisterActivity extends Activity {
 	
 	public boolean register() {
 		
-		url = "http://158.132.11.225:8080/MPServer/userAction!registerUser?user.userName="+userName+"&user.userPsw="+userPsw+"&user.showName="+showName;	
+		url = "http://"+ myApp.getIPAddr() +":8080/MPServer/userAction!registerUser?user.userName="+userName+"&user.userPsw="+userPsw+"&user.showName="+showName;	
 		if(JsonUtil.getJson(url) == true) {
 			Toast.makeText(getApplicationContext(), "Success",Toast.LENGTH_SHORT).show();
 			return true;

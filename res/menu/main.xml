@@ -16,6 +16,14 @@
 	    android:id="@+id/menu_update"
 	    android:title="@string/menu_update"
 	    android:icon="@drawable/update_icons"
-	    android:showAsAction="ifRoom"  />"
+	    android:showAsAction="ifRoom"  />
+	    
+	<item
+        android:id="@+id/item_clear_memory_cache"
+        android:title="@string/menu_item_clear_memory_cache"/>
+    <item
+        android:id="@+id/item_clear_disc_cache"
+        android:title="@string/menu_item_clear_disc_cache"/>
+	    
 
 </menu>

@@ -29,6 +29,7 @@ public class LoginActivity extends Activity {
 	private Button signBtn;
 	private String userName;
 	private String userPsw;
+	private String IPAddr = "175.159.195.212";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -83,16 +84,13 @@ public class LoginActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				Intent signToPanelIntent = new Intent(LoginActivity.this, PanelActivity.class);
-				startActivity(signToPanelIntent);
-				myApp.setUserName("sss");
-				/*userPsw = txtPassword.getText().toString();
+				userPsw = txtPassword.getText().toString();
 				userName = txtUserName.getText().toString();  
 				if(login()) {
 					myApp.setUserName(userName);
 					Intent signToPanelIntent = new Intent(LoginActivity.this, PanelActivity.class);
 					startActivity(signToPanelIntent);
-				}*/
+				}
 				
 			}
 
@@ -101,7 +99,7 @@ public class LoginActivity extends Activity {
 	
 	public boolean login() { 
 
-		url = "http://158.132.11.225:8080/MPServer/userAction!androidLogin?user.userName="+userName+"&user.userPsw="+userPsw;
+		url = "http://"+ myApp.getIPAddr()+":8080/MPServer/userAction!androidLogin?user.userName="+userName+"&user.userPsw="+userPsw;
 		if(JsonUtil.getJson(url) == true) {
 			Toast.makeText(getApplicationContext(), "Success",Toast.LENGTH_SHORT).show();
 			return true;

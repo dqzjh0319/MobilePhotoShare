@@ -26,4 +26,8 @@
 	<string name="Setting">Settings</string>
 	<string name="search_hint">Type to search</string>
     <string name="search_result">Search Results</string>
+    <string name="menu_item_clear_memory_cache">clear memory cache</string>
+    <string name="menu_item_clear_disc_cache">clear disc cache</string>
+    <string name="descr_image">pager</string>
+    
 </resources>

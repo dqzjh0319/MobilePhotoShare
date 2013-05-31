@@ -21,6 +21,8 @@ public class PanelActivity extends Activity {
 		sharedImages.setOnClickListener(new SharedImageOnClickListener());
 		ImageButton picAroundme = (ImageButton)findViewById(R.id.btn_picAroundMe);
 		picAroundme.setOnClickListener(new PicAroundMeOnClickListener());
+		ImageButton exit = (ImageButton)findViewById(R.id.btn_Signout);
+		exit.setOnClickListener(new ExitOnClickListener());
 	}
 	
 	class MyImageOnClickListener implements OnClickListener{
@@ -35,7 +37,7 @@ public class PanelActivity extends Activity {
 	class SharedImageOnClickListener implements OnClickListener{
 		@Override
 		public void onClick(View v) {
-			Intent phltoVLIntent = new Intent(PanelActivity.this, MainActivity.class);
+			Intent phltoVLIntent = new Intent(PanelActivity.this, ShareImageActivity.class);
 			phltoVLIntent.putExtra("curPath", "/mnt/sdcard/PhotoShare/SharedImages");
 			startActivity(phltoVLIntent);
 		}
@@ -48,6 +50,18 @@ public class PanelActivity extends Activity {
 			Intent phltoVLIntent = new Intent(PanelActivity.this, LocationActivity.class);
 			phltoVLIntent.putExtra("curPath", "/mnt/sdcard/PhotoShare/LocationImages");
 			startActivity(phltoVLIntent);
+		}
+		
+		
+	}
+	
+	class ExitOnClickListener implements OnClickListener{
+
+		@Override
+		public void onClick(View v) {
+			Intent MyIntent = new Intent(Intent.ACTION_MAIN);
+			MyIntent.addCategory(Intent.CATEGORY_HOME);
+			startActivity(MyIntent);
 		}
 		
 		
