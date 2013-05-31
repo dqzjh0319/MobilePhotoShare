@@ -21,6 +21,8 @@ import polyu.comp.mps.R;
 import polyu.comp.mps.util.JsonUtil;
 import polyu.comp.mps.util.LocationUtil;
 import polyu.comp.mps.util.SyncTask;
+import polyu.comp.mps.util.SyncUtil;
+import polyu.comp.mps.util.UploadFileTask;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -58,7 +60,7 @@ public class MainActivity extends Activity{
 	private List<Map<String, Object>> fileNameList;
 	private File path;
 	private ListView mylv;
-	public SimpleAdapter mAdapter;
+	//public SimpleAdapter mAdapter;
 	private String optAbsPath;
 	private String photoName;
 	private String myDir;
@@ -71,6 +73,7 @@ public class MainActivity extends Activity{
 	private MenuItem searchItem;
 	public ImageLoader imageLoader;
 	DisplayImageOptions options;
+	private ItemAdapter mAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -104,13 +107,13 @@ public class MainActivity extends Activity{
         String[] fromColumns = {"Icon", "Name"};
         int[] toViews = {	R.id.itemImage, R.id.itemName}; // The TextView in simple_list_item_1
 
-		mAdapter = new SimpleAdapter(this,
-				fileNameList,R.layout.simple_list_item,fromColumns,toViews);
+		//mAdapter = new SimpleAdapter(this,
+			//	fileNameList,R.layout.simple_list_item,fromColumns,toViews);
         mylv.setOnItemClickListener(new myOnLVItemClickListener());
         mylv.setOnItemLongClickListener(new myOnItemLongClickListener());
-        mylv.setAdapter(new ItemAdapter());
+        mAdapter = new ItemAdapter();
+        mylv.setAdapter(mAdapter);
 	}
-
 
 	class myOnLVItemClickListener implements OnItemClickListener{
 
@@ -193,10 +196,8 @@ public class MainActivity extends Activity{
 			optFile.delete();
 		}
 		Log.i("DeleteOptFile", optFile.getPath() + ", "+ path.getAbsolutePath()); 
-		if(optFile.getParent().equals(path.getAbsolutePath())){
-			getFileName(path.listFiles());
-			mAdapter.notifyDataSetChanged();
-		}
+		getFileName(path.listFiles());
+		mAdapter.notifyDataSetChanged();
 	}
 
 	public void RenameOptFile(File optFile){
@@ -221,14 +222,14 @@ public class MainActivity extends Activity{
 			public void onClick(View v) {
 				String photoTitle = et_PhotoTitle.getText().toString();
 				String photoComments = et_PhotoComments.getText().toString();
-				String url = "http://158.132.11.225:8080/MPServer/photoAction!addPhoto?photo.photoTitle="+photoTitle+
+				String url = "http://"+myApp.getIPAddr()+":8080/MPServer/photoAction!addPhoto?photo.photoTitle="+photoTitle+
 						    "&photo.isShared=0"+"&photo.photoAuthor="+myApp.getUserName()+
 						    "&photo.photoComments="+photoComments+
 						    "&photo.picPath=/upload/pic/"+photoName+
 							"&photo.location="+locationUtil.getLocationInfo();
 				JsonUtil.getJson(url);
-				//UploadFileTask uploadFileTask = new UploadFileTask(MainActivity.this);
-				//uploadFileTask.execute(optFile.getAbsolutePath());
+				UploadFileTask uploadFileTask = new UploadFileTask(MainActivity.this);
+				uploadFileTask.execute(optFile.getAbsolutePath());
 			}
 		});
 		
@@ -245,7 +246,7 @@ public class MainActivity extends Activity{
 	
 	public void ShareOptFile(File optFile){
 		fileOptDialog.dismiss();
-		String url = "http://158.132.11.225:8080/MPServer/photoAction!sharePhoto?photo.photoTitle="+photoName+
+		String url = "http://"+myApp.getIPAddr()+":8080/MPServer/photoAction!sharePhoto?photo.photoTitle="+photoName+
 			    "&photo.isShared=1"+"&photo.photoAuthor="+myApp.getUserName()+
 			    "&photo.picPath="+photoName+
 				"&photo.location="+locationUtil.getLocationInfo();
@@ -340,13 +341,20 @@ public class MainActivity extends Activity{
 	}
 
 	public void doUpdate(){
-		Thread SyncThread = new Thread(new SyncTask());
-		SyncThread.start();
-		
 		try {
-			SyncThread.join();
-		} catch (Exception e) {
-			
+			String photoNameList = this.fileNameList.get(0).get("Name")+",";
+			for(int i = 1; i < fileNameList.size(); i++) {
+				photoNameList += this.fileNameList.get(i).get("Name")+",";
+			}
+			String url = "http://"+myApp.getIPAddr()+":8080/MPServer/photoAction!syncPhoto?photoNameList=" + photoNameList;
+			SyncUtil.download(url);
+			//JsonUtil.getJson(url);
+			File[] files = path.listFiles();
+			getFileName(files);
+			mAdapter.notifyDataSetChanged();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 	

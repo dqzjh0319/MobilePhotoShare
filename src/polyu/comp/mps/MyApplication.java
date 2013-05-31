@@ -18,6 +18,7 @@ import android.util.Log;
 public class MyApplication extends Application{
 	
 	private String userName;
+	private String IPAddr;
 	 
 	@Override
 	@SuppressWarnings("unused")
@@ -30,6 +31,7 @@ public class MyApplication extends Application{
         super.onCreate(); 
         Log.i("Application","started successfully");
         this.setUserName("Start");
+        this.setIPAddr("158.132.237.124");
         //File cacheDir = StorageUtils.getCacheDirectory(getApplicationContext());
         initImageLoader(getApplicationContext());
     }    
@@ -51,6 +53,15 @@ public class MyApplication extends Application{
 		ImageLoader.getInstance().init(config);
 	}
 	
+	
+	public String getIPAddr() {
+		return IPAddr;
+	}
+
+	public void setIPAddr(String iPAddr) {
+		IPAddr = iPAddr;
+	}
+
 	public String getUserName() {
 		return userName;
 	}

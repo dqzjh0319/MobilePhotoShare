@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 public class UploadFileTask extends AsyncTask<String, Void, String> {
 	//public static final String requestURL = "http://158.132.11.225:8080/AndroidUploadFileWeb/FileImageUploadServlet";
-	public static final String requestURL = "http://158.132.11.225:8080/MPServer/FileImageUploadServlet";
+	public static final String requestURL = "http://158.132.237.124:8080/MPServer/FileImageUploadServlet";
 	private ProgressDialog pdialog;
 	private Activity context = null;
 
